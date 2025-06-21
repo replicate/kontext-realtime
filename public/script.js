@@ -278,7 +278,7 @@ const App = () => {
 			<div className="max-w-3xl mx-auto px-6 py-12">
 				<h1 className="text-6xl font-bold mb-8">Realtime Kontext</h1>
 				<p className="text-3xl mb-4">
-					Create and edit images with your voice.
+					Create and edit images with your voice
 				</p>
 				<h2 className="opacity-50 mt-12 cursor-pointer" onClick={() => setIsCommandsOpen(!isCommandsOpen)}>
 					Commands {isCommandsOpen ? '▾' : '▸'}
