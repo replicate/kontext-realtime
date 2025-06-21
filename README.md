@@ -2,7 +2,12 @@
 
 Create and edit images using your voice.
 
-Created from this template: https://replicate.com/docs/guides/openai-realtime
+This is a realtime demo of voice-powered function calling
+using [Cloudflare Workers](https://developers.cloudflare.com), [Replicate](https://replicate.com), and the [OpenAI Realtime API](https://platform.openai.com/docs/api-reference/realtime).
+
+It generates images using [Flux Schnell](https://replicate.com/black-forest-labs/flux-schnell) and edits them using [Flux Kontext Pro](https://replicate.com/black-forest-labs/flux-kontext-pro).
+
+Created from this guide and template: https://replicate.com/docs/guides/openai-realtime
 
 ## Wishlist
 
@@ -12,6 +17,7 @@ Created from this template: https://replicate.com/docs/guides/openai-realtime
 - [ ] Change the default voice?
 - [ ] Turn example into multiple examples…
 - [ ] Drag and drop to upload a photo
+- [ ] Create a Replicate model that converts images to video
 
 ## Prerequisites
 
