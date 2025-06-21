@@ -6,3 +6,7 @@ compatibility_flags = ["nodejs_compat"]
 
 [assets]
 directory = "./public"
+
+
+[dev]
+live_reload = true
