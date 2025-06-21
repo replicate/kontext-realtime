@@ -9,8 +9,22 @@
 	<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 	<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 	<script src="/script.js" type="text/babel"></script>
+	<style>
+		/* Set default text color */
+		:root {
+			--text-color: #111827; /* text-gray-900 */
+			--background-color: #f9fafb; /* gray-50 */
+		}
+		body {
+			color: var(--text-color);
+			background-color: var(--background-color);
+		}
+		blockquote {
+			border-color: color-mix(in srgb, var(--text-color) 10%, transparent);
+		}
+	</style>
 </head>
-<body class="min-h-screen bg-gray-50 text-gray-900 font-sans text-lg">
+<body class="min-h-screen font-sans text-lg">
 	<div id="root"></div>
 </body>
 </html>

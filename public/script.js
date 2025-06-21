@@ -23,7 +23,7 @@ const App = () => {
 				},
 			},
 			fn: ({ color }) => {
-				document.body.style.backgroundColor = color;
+				document.documentElement.style.setProperty('--background-color', color);
 				return { success: true, color };
 			}
 		},
@@ -37,7 +37,7 @@ const App = () => {
 				},
 			},
 			fn: ({ color }) => {
-				document.body.style.color = color;
+				document.documentElement.style.setProperty('--text-color', color);
 				return { success: true, color };
 			}
 		},
@@ -172,10 +172,10 @@ const App = () => {
 			function draw() {
 				requestAnimationFrame(draw);
 				analyser.getByteTimeDomainData(dataArray);
-				canvasCtx.fillStyle = 'rgb(243 244 246)';
+				canvasCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--background-color') || 'rgb(243 244 246)';
 				canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 				canvasCtx.lineWidth = 2;
-				canvasCtx.strokeStyle = 'rgb(17 24 39)';
+				canvasCtx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-color') || 'rgb(17 24 39)';
 				canvasCtx.beginPath();
 				const sliceWidth = canvas.width * 1.0 / bufferLength;
 				let x = 0;
@@ -233,6 +233,7 @@ const App = () => {
 			}
 		}, [stream]);
 		return (
+			<div className="flex">
 				<audio ref={ref} autoPlay controls />
 			</div>
 		);
@@ -248,7 +249,7 @@ const App = () => {
 				<p className="text-sm opacity-50 mt-12">Try saying these commands:</p>
 				<div className="space-y-12 mb-16 mt-12">
 					{Object.values(fns).filter(fn => fn.examplePrompt).map(({ examplePrompt }) => (
-						<blockquote key={examplePrompt} className="text-xl border-l-4 border-gray-300 pl-4 italic">"{examplePrompt}"</blockquote>
+						<blockquote key={examplePrompt} className="text-xl border-l-4 pl-4 italic">"{examplePrompt}"</blockquote>
 					))}
 				</div>
 				<canvas ref={visualizerRef} className="w-full h-40 border border-gray-200 rounded-lg mb-8"></canvas>
@@ -263,13 +264,14 @@ const App = () => {
 					))}
 				</div>
 			</div>
-			<footer className="max-w-3xl mx-auto px-6 py-8 opacity-50">
+
+			<footer className="max-w-3xl mx-auto px-6 py-8 opacity-70">
 				<p>
 					This is a realtime demo of voice-powered function calling
-					using <a href="https://developers.cloudflare.com" className="underline hover:text-gray-900">Cloudflare Workers</a>, <a href="https://replicate.com" className="underline hover:text-gray-900">Replicate</a>, and the <a href="https://platform.openai.com/docs/api-reference/realtime" className="underline hover:text-gray-900">OpenAI Realtime API</a>
+					using <a href="https://developers.cloudflare.com" className="underline">Cloudflare Workers</a>, <a href="https://replicate.com" className="underline">Replicate</a>, and the <a href="https://platform.openai.com/docs/api-reference/realtime" className="underline">OpenAI Realtime API</a>. It generates images using <a href="https://replicate.com/black-forest-labs/flux-schnell" className="underline">Flux Schnell</a> and edits them using <a href="https://replicate.com/black-forest-labs/flux-kontext-pro" className="underline">Flux Kontext Pro</a>.
 				</p>
-				<p>
-					Check out the <a href="https://github.com/replicate/getting-started-with-openai-realtime-api" className="underline hover:text-gray-900">code</a>.
+				<p className="mt-4">
+					Check out the <a href="https://github.com/replicate/getting-started-with-openai-realtime-api" className="underline">code</a>.
 				</p>
 			</footer>
 		</>
