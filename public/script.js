@@ -1,6 +1,9 @@
 const App = () => {
 	const visualizerRef = React.useRef(null);
 	const [images, setImages] = React.useState([]);
+	const [lastImageUrl, setLastImageUrl] = React.useState(null);
+	const lastImageUrlRef = React.useRef();
+	lastImageUrlRef.current = lastImageUrl;
 	const [audios, setAudios] = React.useState([]);
 
 	const fns = React.useMemo(() => ({
@@ -52,6 +55,35 @@ const App = () => {
 				}).then((r) => r.text());
 
 				console.log('imageUrl', imageUrl);
+				
+				setLastImageUrl(imageUrl);
+				setImages(prevImages => [imageUrl, ...prevImages]);
+
+				return { success: true, imageUrl };
+			}
+		},
+		editImage: {
+			description: 'Edits an image using AI based on a prompt and the last generated image, and displays it on the page',
+			parameters: {
+				type: 'object',
+				properties: {
+					prompt: { type: 'string', description: 'Text description of how to edit the image' }
+				}
+			},
+			fn: async ({ prompt }) => {
+				if (!lastImageUrlRef.current) {
+					return { success: false, error: 'No image to edit. Please generate an image first.' };
+				}
+				console.log('editImage', prompt, lastImageUrlRef.current);
+				const imageUrl = await fetch('/edit-image', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ prompt, imageUrl: lastImageUrlRef.current }),
+				}).then((r) => r.text());
+
+				console.log('new imageUrl', imageUrl);
 				
 				setImages(prevImages => [imageUrl, ...prevImages]);
 
@@ -210,7 +242,8 @@ const App = () => {
 				<div className="space-y-12 mb-16 mt-12">
 					<blockquote className="text-xl border-l-4 border-gray-300 pl-4 italic">"Change the background to the color of the sky"</blockquote>
 					<blockquote className="text-xl border-l-4 border-gray-300 pl-4 italic">"Change the text to the color of a polar bear"</blockquote>
-					<blockquote className="text-xl border-l-4 border-gray-300 pl-4 italic">"Create an image of a sloth wearing sunglasses"</blockquote>
+					<blockquote className="text-xl border-l-4 border-gray-300 pl-4 italic">"Make an image of a sloth wearing sunglasses"</blockquote>
+					<blockquote className="text-xl border-l-4 border-gray-300 pl-4 italic">"Edit the sloth image and give him a beanie hat"</blockquote>
 				</div>
 				<canvas ref={visualizerRef} className="w-full h-40 border border-gray-200 rounded-lg mb-8"></canvas>
 				<div className="space-y-8">

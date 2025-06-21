@@ -59,4 +59,34 @@ app.post('/generate-image', async (c) => {
 	});
 });
 
+app.post('/edit-image', async (c) => {
+	const replicate = new Replicate({ auth: c.env.REPLICATE_API_TOKEN });
+	const model = 'black-forest-labs/flux-kontext-pro';
+	const { prompt, imageUrl } = await c.req.json();
+
+	if (!prompt || !imageUrl) {
+		return c.json({ error: 'prompt and imageUrl are required' }, 400);
+	}
+
+	const input = {
+		prompt,
+		input_image: imageUrl,
+		aspect_ratio: 'match_input_image',
+		safety_tolerance: 2,
+	}
+
+	console.log({input})
+
+	const output = (await replicate.run(model, { input })) as unknown as string;
+
+	// Some image models return an array of output files, others just a single file.
+	const outputImageUrl = Array.isArray(output) ? output[0].url() : output.url()
+
+	return c.body(outputImageUrl, {
+		headers: {
+			'Content-Type': 'image/webp',
+		},
+	});
+});
+
 export default app;
