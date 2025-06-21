@@ -232,7 +232,10 @@ const App = () => {
 				ref.current.srcObject = stream;
 			}
 		}, [stream]);
-		return <audio ref={ref} autoPlay controls />;
+		return (
+				<audio ref={ref} autoPlay controls />
+			</div>
+		);
 	};
 
 	return (
