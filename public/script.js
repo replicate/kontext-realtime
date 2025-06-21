@@ -286,16 +286,16 @@ const App = () => {
 				</h2>
 				{isCommandsOpen && (
 					<div className="space-y-8 mb-16 mt-8">
-						{Object.entries(fns).map(([name, { description, examplePrompt }]) => (
-							<div key={name} className="p-4 border rounded-lg border-black/10">
-								<h3 className="font-mono font-bold">{name}</h3>
-								<p className="opacity-80">{description}</p>
-								{examplePrompt && (
+						{Object.entries(fns)
+							.filter(([_, { examplePrompt }]) => examplePrompt)
+							.map(([name, { description, examplePrompt }]) => (
+								<div key={name} className="p-4 border rounded-lg border-black/10">
+									<h3 className="font-mono font-bold">{name}</h3>
+									<p className="opacity-80">{description}</p>
 									<blockquote className="mt-1 border-l-4 pl-4 italic opacity-60">
 										"{examplePrompt}"
 									</blockquote>
-								)}
-							</div>
+								</div>
 						))}
 					</div>
 				)}
