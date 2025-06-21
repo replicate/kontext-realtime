@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>OpenAI Realtime API with Cloudflare and Replicate</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="/script.js"></script>
+</head>
+<body class="min-h-screen bg-gray-50 text-gray-900 font-sans text-lg">
+	<div class="max-w-3xl mx-auto px-6 py-12">
+		<h1 class="text-4xl font-bold mb-8">OpenAI Realtime Demo</h1>
+
+		<p class="text-xl mb-4">
+			This is a realtime demo of voice-powered function calling
+			
+			using <a href="https://developers.cloudflare.com" class="underline hover:text-gray-900">Cloudflare Workers</a>, <a href="https://replicate.com" class="underline hover:text-gray-900">Replicate</a>, and the <a href="https://platform.openai.com/docs/api-reference/realtime" class="underline hover:text-gray-900">OpenAI Realtime API</a></p>
+
+		<p class="text-xl mb-4">Try these voice commands:</p>
+
+		<div class="space-y-12 mb-16 mt-12">
+			<blockquote class="text-xl border-l-4 border-gray-300 pl-4 italic">"Change the background to the color of the sky"</blockquote>
+			<blockquote class="text-xl border-l-4 border-gray-300 pl-4 italic">"Change the text to the color of a polar bear"</blockquote>
+			<blockquote class="text-xl border-l-4 border-gray-300 pl-4 italic">"Create an image of a sloth wearing sunglasses"</blockquote>
+		</div>
+
+		<canvas id="visualizer" class="w-full h-40 border border-gray-200 rounded-lg mb-8"></canvas>
+
+		<div id="audio-container" class="space-y-8"></div>
+
+		<div id="image-container" class="space-y-8"></div>
+	</div>
+	<footer class="text-center py-8 text-gray-600">
+		<p>
+			This is an open-source project from Replicate. <a href="https://github.com/replicate/getting-started-with-openai-realtime-api" class="underline hover:text-gray-900">View the source code on GitHub</a>
+		</p>
+	</footer>
+</body>
+</html>
