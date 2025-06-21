@@ -15,6 +15,7 @@ const App = () => {
 		},
 		changeBackgroundColor: {
 			description: 'Changes the background color of a web page',
+			examplePrompt: 'Change the background to the color of the sky',
 			parameters: {
 				type: 'object',
 				properties: {
@@ -28,6 +29,7 @@ const App = () => {
 		},
 		changeTextColor: {
 			description: 'Changes the text color of a web page',
+			examplePrompt: 'Change the text to the color of a polar bear',
 			parameters: {
 				type: 'object',
 				properties: {
@@ -40,7 +42,8 @@ const App = () => {
 			}
 		},
 		generateImage: {
-			description: 'Generates an image using AI and displays it on the page',
+			description: 'Generates an image and displays it on the page',
+			examplePrompt: 'Make a linocut of a raccoon wearing spectacles',
 			parameters: {
 				type: 'object',
 				properties: {
@@ -63,7 +66,8 @@ const App = () => {
 			}
 		},
 		editImage: {
-			description: 'Edits an image using AI based on a prompt and the last generated image, and displays it on the page',
+			description: 'Edits an existing image based on a prompt and the last generated image',
+			examplePrompt: 'Put a beanie on the raccoon',
 			parameters: {
 				type: 'object',
 				properties: {
@@ -92,7 +96,7 @@ const App = () => {
 		}
 	}), []);
 
-	const tools = React.useMemo(() => Object.entries(fns).map(([name, { fn, ...tool }]) => ({
+	const tools = React.useMemo(() => Object.entries(fns).map(([name, { fn, examplePrompt, ...tool }]) => ({
 		type: 'function',
 		name,
 		...tool
@@ -240,10 +244,9 @@ const App = () => {
 				</p>
 				<p className="text-sm opacity-50 mt-12">Try saying these commands:</p>
 				<div className="space-y-12 mb-16 mt-12">
-					<blockquote className="text-xl border-l-4 border-gray-300 pl-4 italic">"Change the background to the color of the sky"</blockquote>
-					<blockquote className="text-xl border-l-4 border-gray-300 pl-4 italic">"Change the text to the color of a polar bear"</blockquote>
-					<blockquote className="text-xl border-l-4 border-gray-300 pl-4 italic">"Make an image of a sloth wearing sunglasses"</blockquote>
-					<blockquote className="text-xl border-l-4 border-gray-300 pl-4 italic">"Edit the sloth image and give him a beanie hat"</blockquote>
+					{Object.values(fns).filter(fn => fn.examplePrompt).map(({ examplePrompt }) => (
+						<blockquote key={examplePrompt} className="text-xl border-l-4 border-gray-300 pl-4 italic">"{examplePrompt}"</blockquote>
+					))}
 				</div>
 				<canvas ref={visualizerRef} className="w-full h-40 border border-gray-200 rounded-lg mb-8"></canvas>
 				<div className="space-y-8">
