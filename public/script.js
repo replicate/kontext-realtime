@@ -299,7 +299,7 @@ const App = () => {
 						))}
 					</div>
 				)}
-				<div className="space-y-8">
+				<div className="fixed bottom-8 right-8 flex flex-col space-y-2">
 					{audios.map((stream, index) => (
 						<Audio key={index} stream={stream} />
 					))}
