@@ -1,12 +1,17 @@
-# Getting started with the OpenAI Realtime API
+# Realtime Kontext
 
-This is a real-time demo app that lets you run functions in your browser using your voice.
+Create and edit images using your voice.
 
-It's powered by [OpenAI's Realtime API](https://platform.openai.com/docs/guides/realtime) over WebRTC, runs on Cloudflare Workers, and uses Replicate models to generate images.
+Created from this template: https://replicate.com/docs/guides/openai-realtime
 
-Check out the guide to running this app: [replicate.com/docs/guides/openai-realtime](https://replicate.com/docs/guides/openai-realtime)
+## Wishlist
 
-![screenshot](https://github.com/user-attachments/assets/d7d04594-8bbb-4687-b801-3ba8e19c85de)
+- [ ] Generate a video that combines all the images
+- [ ] Take the border off the audio visualizer
+- [ ] Tuck the audio element away in the corner of the screen, or use a library to style it
+- [ ] Change the default voice?
+- [ ] Turn example into multiple examples…
+- [ ] Drag and drop to upload a photo
 
 ## Prerequisites
 
