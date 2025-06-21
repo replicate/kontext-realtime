@@ -6,6 +6,7 @@ const App = () => {
 	lastImageUrlRef.current = lastImageUrl;
 	const [audios, setAudios] = React.useState([]);
 	const [isGenerating, setIsGenerating] = React.useState(false);
+	const [isWebcamOpen, setIsWebcamOpen] = React.useState(false);
 	const [isCommandsOpen, setIsCommandsOpen] = React.useState(() => {
 		const stored = localStorage.getItem('isCommandsOpen');
 		return stored !== null ? JSON.parse(stored) : true;
@@ -14,6 +15,12 @@ const App = () => {
 	React.useEffect(() => {
 		localStorage.setItem('isCommandsOpen', JSON.stringify(isCommandsOpen));
 	}, [isCommandsOpen]);
+
+	const handleNewImage = (imageUrl) => {
+		setLastImageUrl(imageUrl);
+		setImages(prevImages => [imageUrl, ...prevImages]);
+		setIsWebcamOpen(false);
+	};
 
 	const fns = React.useMemo(() => ({
 		getPageHTML: {
@@ -112,6 +119,19 @@ const App = () => {
 				} finally {
 					setIsGenerating(false);
 				}
+			}
+		},
+		takePicture: {
+			description: 'Take a picture using the webcam',
+			examplePrompt: 'Take a photo using my webcam',
+			parameters: {
+				type: 'object',
+				properties: {}
+			},
+			fn: () => {
+				console.log('takePicture');
+				setIsWebcamOpen(true);
+				return { success: true, message: 'Webcam opened.' };
 			}
 		}
 	}), []);
@@ -312,6 +332,8 @@ const App = () => {
 				</div>
 			</div>
 
+			{isWebcamOpen && <WebcamCapture onCapture={handleNewImage} onClose={() => setIsWebcamOpen(false)} />}
+
 			<footer className="max-w-3xl mx-auto px-6 py-8 opacity-70">
 				<p>
 					This is a realtime demo of voice-powered function calling
@@ -322,6 +344,59 @@ const App = () => {
 				</p>
 			</footer>
 		</>
+	);
+};
+
+const WebcamCapture = ({ onCapture, onClose }) => {
+	const videoRef = React.useRef(null);
+	const canvasRef = React.useRef(null);
+
+	React.useEffect(() => {
+		const video = videoRef.current;
+		let stream;
+		if (video) {
+			navigator.mediaDevices.getUserMedia({ video: true })
+				.then(s => {
+					stream = s;
+					video.srcObject = stream;
+				})
+				.catch(err => {
+					console.error("Error accessing webcam:", err);
+					onClose();
+				});
+		}
+
+		return () => {
+			if (stream) {
+				stream.getTracks().forEach(track => track.stop());
+			}
+		};
+	}, []);
+
+	const handleCapture = () => {
+		const video = videoRef.current;
+		const canvas = canvasRef.current;
+		if (video && canvas) {
+			const context = canvas.getContext('2d');
+			canvas.width = video.videoWidth;
+			canvas.height = video.videoHeight;
+			context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+			const dataUrl = canvas.toDataURL('image/png');
+			onCapture(dataUrl);
+		}
+	};
+
+	return (
+		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+			<div className="bg-white p-4 rounded-lg shadow-lg text-black">
+				<video ref={videoRef} autoPlay playsInline className="w-full h-auto rounded"></video>
+				<canvas ref={canvasRef} className="hidden"></canvas>
+				<div className="mt-4 flex justify-between">
+					<button onClick={handleCapture} className="px-4 py-2 bg-blue-500 text-white rounded">Capture</button>
+					<button onClick={onClose} className="px-4 py-2 bg-gray-300 rounded">Close</button>
+				</div>
+			</div>
+		</div>
 	);
 };
 
