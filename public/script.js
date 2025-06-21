@@ -6,6 +6,14 @@ const App = () => {
 	lastImageUrlRef.current = lastImageUrl;
 	const [audios, setAudios] = React.useState([]);
 	const [isGenerating, setIsGenerating] = React.useState(false);
+	const [isCommandsOpen, setIsCommandsOpen] = React.useState(() => {
+		const stored = localStorage.getItem('isCommandsOpen');
+		return stored !== null ? JSON.parse(stored) : true;
+	});
+
+	React.useEffect(() => {
+		localStorage.setItem('isCommandsOpen', JSON.stringify(isCommandsOpen));
+	}, [isCommandsOpen]);
 
 	const fns = React.useMemo(() => ({
 		getPageHTML: {
@@ -15,7 +23,7 @@ const App = () => {
 			}
 		},
 		changeBackgroundColor: {
-			description: 'Changes the background color of a web page',
+			description: 'Changes the background color of the page',
 			examplePrompt: 'Change the background to the color of the sky',
 			parameters: {
 				type: 'object',
@@ -29,7 +37,7 @@ const App = () => {
 			}
 		},
 		changeTextColor: {
-			description: 'Changes the text color of a web page',
+			description: 'Change the text color of the page',
 			examplePrompt: 'Change the text to the color of a polar bear',
 			parameters: {
 				type: 'object',
@@ -43,7 +51,7 @@ const App = () => {
 			}
 		},
 		generateImage: {
-			description: 'Generates an image and displays it on the page',
+			description: 'Generate an image and display it on the page',
 			examplePrompt: 'Make a linocut of a raccoon wearing spectacles',
 			parameters: {
 				type: 'object',
@@ -72,7 +80,7 @@ const App = () => {
 			}
 		},
 		editImage: {
-			description: 'Edits an existing image based on a prompt and the last generated image',
+			description: 'Edit the last generated image based on a text prompt',
 			examplePrompt: 'Put a beanie on the raccoon',
 			parameters: {
 				type: 'object',
@@ -97,6 +105,7 @@ const App = () => {
 
 					console.log('new imageUrl', imageUrl);
 					
+					setLastImageUrl(imageUrl);
 					setImages(prevImages => [imageUrl, ...prevImages]);
 
 					return { success: true, imageUrl };
@@ -257,12 +266,24 @@ const App = () => {
 				<p className="text-3xl mb-4">
 					Create and edit images with your voice.
 				</p>
-				<p className="text-sm opacity-50 mt-12">Try saying these commands:</p>
-				<div className="space-y-12 mb-16 mt-12">
-					{Object.values(fns).filter(fn => fn.examplePrompt).map(({ examplePrompt }) => (
-						<blockquote key={examplePrompt} className="text-xl border-l-4 pl-4 italic">"{examplePrompt}"</blockquote>
-					))}
-				</div>
+				<h2 className="opacity-50 mt-12 cursor-pointer" onClick={() => setIsCommandsOpen(!isCommandsOpen)}>
+					Commands {isCommandsOpen ? '▾' : '▸'}
+				</h2>
+				{isCommandsOpen && (
+					<div className="space-y-8 mb-16 mt-8">
+						{Object.entries(fns).map(([name, { description, examplePrompt }]) => (
+							<div key={name}>
+								<h3 className="font-mono font-bold">{name}</h3>
+								<p className="opacity-80">{description}</p>
+								{examplePrompt && (
+									<blockquote className="mt-1 border-l-4 pl-4 italic opacity-60">
+										"{examplePrompt}"
+									</blockquote>
+								)}
+							</div>
+						))}
+					</div>
+				)}
 				<canvas ref={visualizerRef} className="visualizer-canvas w-full h-40 border rounded-lg mb-8"></canvas>
 				<div className="space-y-8">
 					{audios.map((stream, index) => (
