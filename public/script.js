@@ -252,7 +252,7 @@ const App = () => {
 						<blockquote key={examplePrompt} className="text-xl border-l-4 pl-4 italic">"{examplePrompt}"</blockquote>
 					))}
 				</div>
-				<canvas ref={visualizerRef} className="w-full h-40 border border-gray-200 rounded-lg mb-8"></canvas>
+				<canvas ref={visualizerRef} className="visualizer-canvas w-full h-40 border rounded-lg mb-8"></canvas>
 				<div className="space-y-8">
 					{audios.map((stream, index) => (
 						<Audio key={index} stream={stream} />
