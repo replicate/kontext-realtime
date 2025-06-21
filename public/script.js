@@ -5,6 +5,7 @@ const App = () => {
 	const lastImageUrlRef = React.useRef();
 	lastImageUrlRef.current = lastImageUrl;
 	const [audios, setAudios] = React.useState([]);
+	const [isGenerating, setIsGenerating] = React.useState(false);
 
 	const fns = React.useMemo(() => ({
 		getPageHTML: {
@@ -52,17 +53,22 @@ const App = () => {
 			},
 			fn: async ({ prompt }) => {
 				console.log('generateImage', prompt);
-				const imageUrl = await fetch('/generate-image', {
-					method: 'POST',
-					body: prompt,
-				}).then((r) => r.text());
+				setIsGenerating(true);
+				try {
+					const imageUrl = await fetch('/generate-image', {
+						method: 'POST',
+						body: prompt,
+					}).then((r) => r.text());
 
-				console.log('imageUrl', imageUrl);
-				
-				setLastImageUrl(imageUrl);
-				setImages(prevImages => [imageUrl, ...prevImages]);
+					console.log('imageUrl', imageUrl);
+					
+					setLastImageUrl(imageUrl);
+					setImages(prevImages => [imageUrl, ...prevImages]);
 
-				return { success: true, imageUrl };
+					return { success: true, imageUrl };
+				} finally {
+					setIsGenerating(false);
+				}
 			}
 		},
 		editImage: {
@@ -79,19 +85,24 @@ const App = () => {
 					return { success: false, error: 'No image to edit. Please generate an image first.' };
 				}
 				console.log('editImage', prompt, lastImageUrlRef.current);
-				const imageUrl = await fetch('/edit-image', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({ prompt, imageUrl: lastImageUrlRef.current }),
-				}).then((r) => r.text());
+				setIsGenerating(true);
+				try {
+					const imageUrl = await fetch('/edit-image', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ prompt, imageUrl: lastImageUrlRef.current }),
+					}).then((r) => r.text());
 
-				console.log('new imageUrl', imageUrl);
-				
-				setImages(prevImages => [imageUrl, ...prevImages]);
+					console.log('new imageUrl', imageUrl);
+					
+					setImages(prevImages => [imageUrl, ...prevImages]);
 
-				return { success: true, imageUrl };
+					return { success: true, imageUrl };
+				} finally {
+					setIsGenerating(false);
+				}
 			}
 		}
 	}), []);
@@ -258,6 +269,7 @@ const App = () => {
 						<Audio key={index} stream={stream} />
 					))}
 				</div>
+				{isGenerating && <Spinner />}
 				<div className="space-y-8">
 					{images.map((imageUrl, index) => (
 						<img key={index} src={imageUrl} style={{ maxWidth: '100%' }} />
@@ -277,6 +289,15 @@ const App = () => {
 		</>
 	);
 };
+
+const Spinner = () => (
+	<div className="flex justify-center items-center my-8">
+		<svg className="animate-spin h-10 w-10 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+			<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+			<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+		</svg>
+	</div>
+);
 
 const container = document.getElementById('root');
 const root = ReactDOM.createRoot(container);
