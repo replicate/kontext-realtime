@@ -277,16 +277,17 @@ const App = () => {
 		<>
 			<div className="max-w-3xl mx-auto px-6 py-12">
 				<h1 className="text-6xl font-bold mb-8">Realtime Kontext</h1>
-				<p className="text-3xl mb-4">
+				<p className="text-3xl mb-8">
 					Create and edit images with your voice
 				</p>
-				<h2 className="opacity-50 mt-12 cursor-pointer" onClick={() => setIsCommandsOpen(!isCommandsOpen)}>
+				<canvas ref={visualizerRef} className="visualizer-canvas w-full h-40 my-8"></canvas>
+				<h2 className="opacity-50 cursor-pointer" onClick={() => setIsCommandsOpen(!isCommandsOpen)}>
 					Commands {isCommandsOpen ? '▾' : '▸'}
 				</h2>
 				{isCommandsOpen && (
 					<div className="space-y-8 mb-16 mt-8">
 						{Object.entries(fns).map(([name, { description, examplePrompt }]) => (
-							<div key={name}>
+							<div key={name} className="p-4 border rounded-lg border-black/10">
 								<h3 className="font-mono font-bold">{name}</h3>
 								<p className="opacity-80">{description}</p>
 								{examplePrompt && (
@@ -298,7 +299,6 @@ const App = () => {
 						))}
 					</div>
 				)}
-				<canvas ref={visualizerRef} className="visualizer-canvas w-full h-40 mb-8"></canvas>
 				<div className="space-y-8">
 					{audios.map((stream, index) => (
 						<Audio key={index} stream={stream} />
