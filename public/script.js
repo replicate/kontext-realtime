@@ -195,7 +195,21 @@ const App = () => {
 				canvasCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--background-color') || 'rgb(243 244 246)';
 				canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 				canvasCtx.lineWidth = 2;
-				canvasCtx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-color') || 'rgb(17 24 39)';
+
+				const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color') || 'rgb(17, 24, 39)';
+				const rgb = textColor.match(/\d+/g);
+				let r = 17, g = 24, b = 39;
+				if (rgb && rgb.length >= 3) {
+					[r, g, b] = rgb.map(Number);
+				}
+				
+				const gradient = canvasCtx.createLinearGradient(0, 0, canvas.width, 0);
+				gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0)`);
+				gradient.addColorStop(0.1, `rgba(${r}, ${g}, ${b}, 1)`);
+				gradient.addColorStop(0.9, `rgba(${r}, ${g}, ${b}, 1)`);
+				gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+				canvasCtx.strokeStyle = gradient;
+
 				canvasCtx.beginPath();
 				const sliceWidth = canvas.width * 1.0 / bufferLength;
 				let x = 0;
@@ -284,7 +298,7 @@ const App = () => {
 						))}
 					</div>
 				)}
-				<canvas ref={visualizerRef} className="visualizer-canvas w-full h-40 border rounded-lg mb-8"></canvas>
+				<canvas ref={visualizerRef} className="visualizer-canvas w-full h-40 mb-8"></canvas>
 				<div className="space-y-8">
 					{audios.map((stream, index) => (
 						<Audio key={index} stream={stream} />
