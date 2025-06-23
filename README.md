@@ -1,8 +1,12 @@
-![Realtime Kontext](screenshot.png)
+![screenshot](screenshot.png)
 
-# Realtime Kontext
+---
+
+# Kontext Realtime
 
 Create and edit images using your voice.
+
+🍿 [Watch the demo video](https://www.youtube.com/watch?v=72mD_vkG9FU)
 
 This is a realtime demo of voice-powered function calling
 using [Cloudflare Workers](https://developers.cloudflare.com), [Replicate](https://replicate.com), and the [OpenAI Realtime API](https://platform.openai.com/docs/api-reference/realtime).
