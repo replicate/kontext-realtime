@@ -25,8 +25,22 @@ const App = () => {
 	const fns = React.useMemo(() => ({
 		getPageHTML: {
 			description: 'Gets the HTML for the current page',
+			hideFromCommands: true,
 			fn: () => {
 				return { success: true, html: document.documentElement.outerHTML };
+			}
+		},
+		showWebcam: {
+			description: 'Take a picture using the webcam',
+			examplePrompt: 'Take a photo using my webcam',
+			parameters: {
+				type: 'object',
+				properties: {}
+			},
+			fn: () => {
+				console.log('show');
+				setIsWebcamOpen(true);
+				return { success: true, message: 'Webcam opened.' };
 			}
 		},
 		createImage: {
@@ -93,22 +107,10 @@ const App = () => {
 				}
 			}
 		},
-		takePicture: {
-			description: 'Take a picture using the webcam',
-			examplePrompt: 'Take a photo using my webcam',
-			parameters: {
-				type: 'object',
-				properties: {}
-			},
-			fn: () => {
-				console.log('takePicture');
-				setIsWebcamOpen(true);
-				return { success: true, message: 'Webcam opened.' };
-			}
-		},
 		changeBackgroundColor: {
 			description: 'Changes the background color of the page',
 			examplePrompt: 'Change the background to the color of the sky',
+			hideFromCommands: true,
 			parameters: {
 				type: 'object',
 				properties: {
@@ -123,6 +125,7 @@ const App = () => {
 		changeTextColor: {
 			description: 'Change the text color of the page',
 			examplePrompt: 'Change the text to the color of a polar bear',
+			hideFromCommands: true,
 			parameters: {
 				type: 'object',
 				properties: {
@@ -165,7 +168,7 @@ const App = () => {
 		},
 	}), []);
 
-	const tools = React.useMemo(() => Object.entries(fns).map(([name, { fn, examplePrompt, ...tool }]) => ({
+	const tools = React.useMemo(() => Object.entries(fns).map(([name, { fn, examplePrompt, hideFromCommands, ...tool }]) => ({
 		type: 'function',
 		name,
 		...tool
@@ -339,7 +342,7 @@ const App = () => {
 						{isCommandsOpen && (
 							<div className="space-y-8 mb-16 mt-8">
 								{Object.entries(fns)
-									.filter(([_, { examplePrompt }]) => examplePrompt)
+									.filter(([_, { hideFromCommands }]) => !hideFromCommands)
 									.map(([name, { description, examplePrompt }]) => (
 										<div key={name} className="py-2 px-0">
 											<h3 className="font-mono font-bold">{name}</h3>
