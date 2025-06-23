@@ -1,3 +1,5 @@
+![Realtime Kontext](screenshot.png)
+
 # Realtime Kontext
 
 Create and edit images using your voice.
