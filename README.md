@@ -9,25 +9,16 @@ It generates images using [Flux Schnell](https://replicate.com/black-forest-labs
 
 Created from this guide and template: https://replicate.com/docs/guides/openai-realtime
 
-## Wishlist
-
-- [ ] Generate a video that combines all the images
-- [ ] Take the border off the audio visualizer
-- [ ] Tuck the audio element away in the corner of the screen, or use a library to style it
-- [ ] Change the default voice?
-- [ ] Turn example into multiple examples…
-- [ ] Drag and drop to upload a photo
-- [ ] Create a Replicate model that converts images to video
-
 ## Prerequisites
 
 Here's what you'll need to build this project:
 
 - An [OpenAI account](https://platform.openai.com/signup). No special plan is required to use the Realtime API Beta.
-- A [Cloudflare account](https://www.cloudflare.com/plans/free/). You can sign up and [run workers for free](https://workers.cloudflare.com/).
 - A [Replicate account](https://replicate.com/).
 - [Node.js 20](https://nodejs.org/en/download/prebuilt-installer) or later.
-- [Git](https://chatgpt.com/share/673d65dc-8e50-8003-8ce2-4bc7053d0e3a) for cloning the project from GitHub.
+- [Git](https://chatgpt.com/share/673d65dc-8e50-8003-8ce2-4bc7053d0e3a) for cloning the project from 
+GitHub.
+- Optional: A [Cloudflare account](https://www.cloudflare.com/plans/free/) if you want to deploy the app to the web. You can sign up and [run workers for free](https://workers.cloudflare.com/).
 
 ## Development
 
