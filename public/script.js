@@ -26,15 +26,8 @@ const App = () => {
 	};
 
 	const fns = React.useMemo(() => ({
-		getPageHTML: {
-			description: 'Gets the HTML for the current page',
-			hideFromCommands: true,
-			fn: () => {
-				return { success: true, html: document.documentElement.outerHTML };
-			}
-		},
 		showWebcam: {
-			description: 'Show me the webcam',
+			description: 'Show the webcam',
 			examplePrompt: 'Show me the webcam',
 			parameters: {
 				type: 'object',
@@ -366,14 +359,16 @@ const App = () => {
 							Commands {isCommandsOpen ? '▾' : '▸'}
 						</h2>
 						{isCommandsOpen && (
-							<div className="space-y-8 mb-16 mt-8">
+							<div className="space-y-3 mb-16 mt-8 text-base">
 								{Object.entries(fns)
 									.filter(([_, { hideFromCommands }]) => !hideFromCommands)
 									.map(([name, { description, examplePrompt }]) => (
-										<div key={name} className="py-2 px-0">
-											<h3 className="font-mono font-bold">{name}</h3>
-											<p className="opacity-80">{description}</p>
-											<blockquote className="mt-1 border-l-4 pl-4 italic opacity-60">
+										<div key={name} className="py-2 px-0 text-sm">
+											<div className="flex flex-row items-baseline space-x-2">
+												<h3 className="font-mono font-bold text-base m-0 p-0">{name}</h3>
+												<p className="opacity-80 text-sm m-0 p-0">{description}</p>
+											</div>
+											<blockquote className="mt-1 border-l-4 pl-4 italic opacity-60 text-xs">
 												"{examplePrompt}"
 											</blockquote>
 										</div>
@@ -385,14 +380,13 @@ const App = () => {
 								<Audio key={index} stream={stream} />
 							))}
 						</div>
-						{isGenerating && <Spinner />}
 						<footer className="py-8 opacity-70 mt-12">
 							<p>
 								This is a realtime demo of voice-powered function calling
 								using <a href="https://developers.cloudflare.com" className="underline">Cloudflare Workers</a>, <a href="https://replicate.com" className="underline">Replicate</a>, and the <a href="https://platform.openai.com/docs/api-reference/realtime" className="underline">OpenAI Realtime API</a>. It generates images using <a href="https://replicate.com/black-forest-labs/flux-schnell" className="underline">Flux Schnell</a> and edits them using <a href="https://replicate.com/black-forest-labs/flux-kontext-pro" className="underline">Flux Kontext Pro</a>.
 							</p>
 							<p className="mt-4">
-								Check out the <a href="https://github.com/replicate/getting-started-with-openai-realtime-api" className="underline">code</a>.
+								Check out the <a href="https://github.com/zeke/openai-realtime-plus-flux-kontext/" className="underline">code</a>.
 							</p>
 						</footer>
 					</div>
