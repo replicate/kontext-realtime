@@ -7,6 +7,7 @@ const App = () => {
 	const [audios, setAudios] = React.useState([]);
 	const [isGenerating, setIsGenerating] = React.useState(false);
 	const [isWebcamOpen, setIsWebcamOpen] = React.useState(false);
+	const isWebcamOpenRef = React.useRef(isWebcamOpen);
 	const [isCommandsOpen, setIsCommandsOpen] = React.useState(() => {
 		const stored = localStorage.getItem('isCommandsOpen');
 		return stored !== null ? JSON.parse(stored) : true;
@@ -15,6 +16,8 @@ const App = () => {
 	React.useEffect(() => {
 		localStorage.setItem('isCommandsOpen', JSON.stringify(isCommandsOpen));
 	}, [isCommandsOpen]);
+
+	React.useEffect(() => { isWebcamOpenRef.current = isWebcamOpen; }, [isWebcamOpen]);
 
 	const handleNewImage = (imageUrl) => {
 		setLastImageUrl(imageUrl);
@@ -31,8 +34,8 @@ const App = () => {
 			}
 		},
 		showWebcam: {
-			description: 'Take a picture using the webcam',
-			examplePrompt: 'Take a photo using my webcam',
+			description: 'Show me the webcam',
+			examplePrompt: 'Show me the webcam',
 			parameters: {
 				type: 'object',
 				properties: {}
@@ -41,6 +44,29 @@ const App = () => {
 				console.log('show');
 				setIsWebcamOpen(true);
 				return { success: true, message: 'Webcam opened.' };
+			}
+		},
+		captureWebcam: {
+			description: 'Capture a photo from the webcam if it is open',
+			examplePrompt: 'Snap a photo now',
+			parameters: {
+				type: 'object',
+				properties: {}
+			},
+			fn: async () => {
+				if (!isWebcamOpenRef.current) {
+					return { success: false, error: 'Webcam is not open.' };
+				}
+				// Find the capture button in the WebcamCapture component and click it
+				const captureButton = Array.from(document.querySelectorAll('button')).find(
+					btn => btn.textContent && btn.textContent.trim().toLowerCase() === 'capture'
+				);
+				if (captureButton) {
+					captureButton.click();
+					return { success: true, message: 'Capture button clicked.' };
+				} else {
+					return { success: false, error: 'Capture button not found.' };
+				}
 			}
 		},
 		createImage: {
