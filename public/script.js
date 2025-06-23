@@ -134,6 +134,35 @@ const App = () => {
 				return { success: true, color };
 			}
 		},
+		undo: {
+			description: 'Removes the last image from the page',
+			examplePrompt: 'Undo the last image so you can try again',
+			parameters: {
+				type: 'object',
+				properties: {}
+			},
+			fn: () => {
+				setImages(prevImages => {
+					const newImages = prevImages.slice(1);
+					setLastImageUrl(newImages[0] || null);
+					return newImages;
+				});
+				return { success: true };
+			}
+		},
+		startOver: {
+			description: 'Removes all images from the page',
+			examplePrompt: 'Start over',
+			parameters: {
+				type: 'object',
+				properties: {}
+			},
+			fn: () => {
+				setImages([]);
+				setLastImageUrl(null);
+				return { success: true };
+			}
+		},
 	}), []);
 
 	const tools = React.useMemo(() => Object.entries(fns).map(([name, { fn, examplePrompt, ...tool }]) => ({
