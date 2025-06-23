@@ -386,7 +386,7 @@ const App = () => {
 								using <a href="https://developers.cloudflare.com" className="underline">Cloudflare Workers</a>, <a href="https://replicate.com" className="underline">Replicate</a>, and the <a href="https://platform.openai.com/docs/api-reference/realtime" className="underline">OpenAI Realtime API</a>. It generates images using <a href="https://replicate.com/black-forest-labs/flux-schnell" className="underline">Flux Schnell</a> and edits them using <a href="https://replicate.com/black-forest-labs/flux-kontext-pro" className="underline">Flux Kontext Pro</a>.
 							</p>
 							<p className="mt-4">
-								Check out the <a href="https://github.com/zeke/openai-realtime-plus-flux-kontext/" className="underline">code</a>.
+								Check out the <a href="https://github.com/zeke/kontext-realtime/" className="underline">code</a>.
 							</p>
 						</footer>
 					</div>
