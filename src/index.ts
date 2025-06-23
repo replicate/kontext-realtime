@@ -25,7 +25,8 @@ app.post('/rtc-connect', async (c) => {
 	});
 
 	if (!response.ok) {
-		throw new Error(`OpenAI API error: ${response.status}`);
+		const error = await response.text();
+		throw new Error(`OpenAI API error: ${response.status} - ${error}`);
 	}
 	const sdp = await response.text();
 	return c.body(sdp, {
