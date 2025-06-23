@@ -29,7 +29,7 @@ const App = () => {
 				return { success: true, html: document.documentElement.outerHTML };
 			}
 		},
-		generateImage: {
+		createImage: {
 			description: 'Generate an image and display it on the page',
 			examplePrompt: 'Make a linocut of a raccoon wearing spectacles',
 			parameters: {
@@ -39,7 +39,7 @@ const App = () => {
 				}
 			},
 			fn: async ({ prompt }) => {
-				console.log('generateImage', prompt);
+				console.log('createImage', prompt);
 				setIsGenerating(true);
 				try {
 					const imageUrl = await fetch('/generate-image', {
@@ -299,12 +299,12 @@ const App = () => {
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-12">
 					{/* Left Column */}
 					<div>
-						<h1 className="text-6xl font-bold mb-8">Realtime Kontext</h1>
+						<h1 className="text-8xl font-bold mb-8">Kontext<br />Realtime</h1>		
 						<p className="text-3xl mb-8">
 							Create and edit images using voice commands
 						</p>
 						<canvas ref={visualizerRef} className="visualizer-canvas w-full h-40 my-8"></canvas>
-						<h2 className="opacity-50 cursor-pointer" onClick={() => setIsCommandsOpen(!isCommandsOpen)}>
+						<h2 className="text-2xl font-bold opacity-30 cursor-pointer" onClick={() => setIsCommandsOpen(!isCommandsOpen)}>
 							Commands {isCommandsOpen ? '▾' : '▸'}
 						</h2>
 						{isCommandsOpen && (
@@ -312,7 +312,7 @@ const App = () => {
 								{Object.entries(fns)
 									.filter(([_, { examplePrompt }]) => examplePrompt)
 									.map(([name, { description, examplePrompt }]) => (
-										<div key={name} className="p-4 border rounded-lg border-black/10">
+										<div key={name} className="py-2 px-0">
 											<h3 className="font-mono font-bold">{name}</h3>
 											<p className="opacity-80">{description}</p>
 											<blockquote className="mt-1 border-l-4 pl-4 italic opacity-60">
@@ -328,7 +328,7 @@ const App = () => {
 							))}
 						</div>
 						{isGenerating && <Spinner />}
-						<footer className="max-w-3xl px-6 py-8 opacity-70 mt-12">
+						<footer className="py-8 opacity-70 mt-12">
 							<p>
 								This is a realtime demo of voice-powered function calling
 								using <a href="https://developers.cloudflare.com" className="underline">Cloudflare Workers</a>, <a href="https://replicate.com" className="underline">Replicate</a>, and the <a href="https://platform.openai.com/docs/api-reference/realtime" className="underline">OpenAI Realtime API</a>. It generates images using <a href="https://replicate.com/black-forest-labs/flux-schnell" className="underline">Flux Schnell</a> and edits them using <a href="https://replicate.com/black-forest-labs/flux-kontext-pro" className="underline">Flux Kontext Pro</a>.
@@ -341,6 +341,7 @@ const App = () => {
 					{/* Right Column */}
 					<div>
 						<div className="space-y-8">
+							{isGenerating && <Spinner />}
 							{isWebcamOpen && <WebcamCapture onCapture={handleNewImage} onClose={() => setIsWebcamOpen(false)} />}
 							{images.map((imageUrl, index) => (
 								<img key={index} src={imageUrl} style={{ maxWidth: '100%' }} />
@@ -397,7 +398,7 @@ const WebcamCapture = ({ onCapture, onClose }) => {
 			<video ref={videoRef} autoPlay playsInline className="w-full h-auto rounded"></video>
 			<canvas ref={canvasRef} className="hidden"></canvas>
 			<div className="mt-4 flex justify-between">
-				<button onClick={handleCapture} className="px-4 py-2 bg-blue-500 text-white rounded">Capture</button>
+				<button onClick={handleCapture} className="px-4 py-2 bg-stone-900 text-white rounded">Capture</button>
 				<button onClick={onClose} className="px-4 py-2 bg-gray-300 rounded">Close</button>
 			</div>
 		</div>
