@@ -13,6 +13,10 @@ const App = () => {
 		return stored !== null ? JSON.parse(stored) : true;
 	});
 
+	// Highlighted functions state
+	const [highlightedFunctions, setHighlightedFunctions] = React.useState({});
+	const highlightTimeouts = React.useRef({});
+
 	React.useEffect(() => {
 		localStorage.setItem('isCommandsOpen', JSON.stringify(isCommandsOpen));
 	}, [isCommandsOpen]);
@@ -229,8 +233,28 @@ const App = () => {
 				if (fn !== undefined) {
 					console.log(`Calling local function ${msg.name} with ${msg.arguments}`);
 					const args = JSON.parse(msg.arguments);
+
+					// Highlight as 'active' while running
+					setHighlightedFunctions(prev => ({ ...prev, [msg.name]: 'active' }));
+					if (highlightTimeouts.current[msg.name]) {
+						clearTimeout(highlightTimeouts.current[msg.name]);
+						delete highlightTimeouts.current[msg.name];
+					}
+
 					const result = await fn(args);
 					console.log('result', result);
+
+					// On function completion, set to 'fading', then remove after 0.5s
+					setHighlightedFunctions(prev => ({ ...prev, [msg.name]: 'fading' }));
+					highlightTimeouts.current[msg.name] = setTimeout(() => {
+						setHighlightedFunctions(prev => {
+							const updated = { ...prev };
+							delete updated[msg.name];
+							return updated;
+						});
+						delete highlightTimeouts.current[msg.name];
+					}, 500);
+
 					const event = {
 						type: 'conversation.item.create',
 						item: {
@@ -363,14 +387,30 @@ const App = () => {
 								{Object.entries(fns)
 									.filter(([_, { hideFromCommands }]) => !hideFromCommands)
 									.map(([name, { description, examplePrompt }]) => (
-										<div key={name} className="py-2 px-0 text-sm">
-											<div className="flex flex-row items-baseline space-x-2">
-												<h3 className="font-mono font-bold text-base m-0 p-0">{name}</h3>
-												<p className="opacity-80 text-sm m-0 p-0">{description}</p>
+										<div
+											key={name}
+											className={`py-2 px-0 text-sm flex items-start transition-all duration-300 ${
+												highlightedFunctions[name] === 'active' || highlightedFunctions[name] === 'fading'
+													? 'pl-7'
+													: 'pl-0'
+											}`}
+											style={{ minHeight: 32 }}
+										>
+											<span
+												className={`absolute transition-opacity duration-300 ${
+													highlightedFunctions[name] === 'active' ? 'opacity-100' : 'opacity-0'
+												}`}
+												style={{ marginLeft: '-28px', marginTop: '2px' }}
+											>
+												{highlightedFunctions[name] === 'active' && <GreenSpinner />}
+											</span>
+											<div className="flex flex-col">
+												<h3 className="font-mono font-bold text-base m-0 p-0 leading-tight">{name}</h3>
+												<p className="opacity-80 text-sm m-0 p-0 leading-tight mt-1">{description}</p>
+												<blockquote className="mt-1 border-l-4 pl-4 italic opacity-60 text-xs leading-tight">
+													"{examplePrompt}"
+												</blockquote>
 											</div>
-											<blockquote className="mt-1 border-l-4 pl-4 italic opacity-60 text-xs">
-												"{examplePrompt}"
-											</blockquote>
 										</div>
 									))}
 							</div>
@@ -465,6 +505,34 @@ const Spinner = () => (
 		</svg>
 	</div>
 );
+
+const GreenSpinner = () => {
+	// Use current text color from CSS variable
+	const color = getComputedStyle(document.documentElement).getPropertyValue('--text-color') || '#22c55e';
+	return (
+		<span className="inline-flex items-center justify-center mr-2 align-middle" style={{ width: 18, height: 18 }}>
+			<svg className="animate-spin" width="16" height="16" viewBox="0 0 16 16" fill="none">
+				<circle
+					cx="8"
+					cy="8"
+					r="7"
+					stroke={color}
+					strokeWidth="3"
+					strokeDasharray="34"
+					strokeDashoffset="0"
+					style={{ opacity: 0.25 }}
+				/>
+				<path
+					d="M8 1a7 7 0 0 1 7 7"
+					stroke={color}
+					strokeWidth="3"
+					strokeLinecap="round"
+					style={{ opacity: 0.85 }}
+				/>
+			</svg>
+		</span>
+	);
+};
 
 const container = document.getElementById('root');
 const root = ReactDOM.createRoot(container);
