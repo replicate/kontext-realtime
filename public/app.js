@@ -369,12 +369,29 @@ const App = () => {
 						'Content-Type': 'application/sdp',
 					},
 				})
-					.then((r) => r.text())
+					.then(async (r) => {
+						if (!r.ok) {
+							const errorData = await r.json();
+							throw new Error(errorData.error || `Server error: ${r.status}`);
+						}
+						
+						const contentType = r.headers.get('content-type');
+						if (contentType && contentType.includes('application/json')) {
+							const errorData = await r.json();
+							throw new Error(errorData.error || 'Server returned JSON instead of SDP');
+						}
+						
+						return r.text();
+					})
 					.then((answer) => {
 						peerConnection.setRemoteDescription({
 							sdp: answer,
 							type: 'answer',
 						});
+					})
+					.catch((error) => {
+						console.error('RTC connection failed:', error);
+						alert(`Failed to connect: ${error.message}`);
 					});
 			});
 		});
