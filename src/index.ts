@@ -49,7 +49,18 @@ app.post('/generate-image', async (c) => {
 	})
 	  
 	// Some image models return an array of output files, others just a single file.
-	const imageUrl = Array.isArray(output) ? output[0].url() : output.url()
+	let imageUrl;
+	if (Array.isArray(output)) {
+		if (typeof output[0] === 'string') {
+			imageUrl = output[0];
+		} else {
+			imageUrl = String(output[0]);
+		}
+	} else if (typeof output === 'string') {
+		imageUrl = output;
+	} else {
+		imageUrl = String(output);
+	}
    
 	console.log({imageUrl})
 
@@ -86,6 +97,33 @@ app.post('/edit-image', async (c) => {
 	return c.body(outputImageUrl, {
 		headers: {
 			'Content-Type': 'image/webp',
+		},
+	});
+});
+
+app.post('/enhance-image', async (c) => {
+	const replicate = new Replicate({ auth: c.env.REPLICATE_API_TOKEN });
+	const model = 'topazlabs/image-upscale';
+	const { imageUrl } = await c.req.json();
+
+	if (!imageUrl) {
+		return c.json({ error: 'imageUrl is required' }, 400);
+	}
+
+	const input = {
+		image: imageUrl
+	};
+
+	console.log({ input });
+
+	const output = (await replicate.run(model, { input })) as unknown;
+
+	// Some image models return an array of output files, others just a single file.
+	const outputImageUrl = Array.isArray(output) ? output[0].url() : output.url()
+
+	return c.body(outputImageUrl, {
+		headers: {
+			'Content-Type': 'text/plain',
 		},
 	});
 });

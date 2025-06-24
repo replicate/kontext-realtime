@@ -128,7 +128,34 @@ const App = () => {
 				} finally {
 					setIsGenerating(false);
 				}
-			}
+			},
+		},
+		enhanceImage: {
+			description: 'Upscale the last generated image to a higher resolution',
+			examplePrompt: 'Enhance!',
+			parameters: {
+				type: 'object',
+				properties: {},
+			},
+			fn: async () => {
+				if (!lastImageUrlRef.current) {
+					return { success: false, error: 'No image to enhance. Please generate an image first.' };
+				}
+				setIsGenerating(true);
+				try {
+					const imageUrl = await fetch('/enhance-image', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ imageUrl: lastImageUrlRef.current }),
+					}).then((r) => r.text());
+
+					setLastImageUrl(imageUrl);
+					setImages(prevImages => [imageUrl, ...prevImages]);
+					return { success: true, imageUrl };
+				} finally {
+					setIsGenerating(false);
+				}
+			},
 		},
 		changeBackgroundColor: {
 			description: 'Changes the background color of the page',
