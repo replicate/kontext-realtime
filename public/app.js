@@ -1,5 +1,6 @@
 // Define the localStorage key at the top level so it is available everywhere
 const REPLICATE_API_TOKEN = 'replicate_api_token';
+const OPENAI_API_KEY = 'openai_api_key';
 
 const App = () => {
 	const visualizerRef = React.useRef(null);
@@ -21,7 +22,8 @@ const App = () => {
 	const highlightTimeouts = React.useRef({});
 
 	const [replicateToken, setReplicateToken] = React.useState(() => localStorage.getItem(REPLICATE_API_TOKEN) || '');
-	const [showTokenModal, setShowTokenModal] = React.useState(!replicateToken);
+	const [openaiKey, setOpenaiKey] = React.useState(() => localStorage.getItem(OPENAI_API_KEY) || '');
+	const [showTokenModal, setShowTokenModal] = React.useState(!replicateToken || !openaiKey);
 
 	React.useEffect(() => {
 		localStorage.setItem('isCommandsOpen', JSON.stringify(isCommandsOpen));
@@ -400,6 +402,7 @@ const App = () => {
 					body: offer.sdp,
 					headers: {
 						'Content-Type': 'application/sdp',
+						Authorization: `Bearer ${openaiKey}`,
 					},
 				})
 					.then((r) => r.text())
@@ -411,7 +414,7 @@ const App = () => {
 					});
 			});
 		});
-	}, [tools, fns, showTokenModal]);
+	}, [tools, fns, showTokenModal, openaiKey]);
 	
 	const Audio = ({ stream }) => {
 		const ref = React.useRef(null);
@@ -429,14 +432,16 @@ const App = () => {
 
 	// Show modal if token is not set
 	React.useEffect(() => {
-		if (!replicateToken) setShowTokenModal(true);
+		if (!replicateToken || !openaiKey) setShowTokenModal(true);
 		else setShowTokenModal(false);
-	}, [replicateToken]);
+	}, [replicateToken, openaiKey]);
 
 	// Add logout function
 	const logout = () => {
 		localStorage.removeItem(REPLICATE_API_TOKEN);
+		localStorage.removeItem(OPENAI_API_KEY);
 		setReplicateToken('');
+		setOpenaiKey('');
 		setShowTokenModal(true);
 	};
 
@@ -445,7 +450,11 @@ const App = () => {
 			{showTokenModal && (
 				<>
 					<div className="fixed inset-0 z-40 bg-white bg-opacity-40 backdrop-blur" />
-					<ReplicateTokenModal onSave={token => { setReplicateToken(token); setShowTokenModal(false); }} />
+					<TokenModal onSave={({replicate, openai}) => {
+						setReplicateToken(replicate);
+						setOpenaiKey(openai);
+						setShowTokenModal(false);
+					}} />
 				</>
 			)}
 			<div className={`max-w-6xl mx-auto px-4 py-12 transition-all duration-300 ${showTokenModal ? 'pointer-events-none select-none' : ''}`}>
@@ -612,17 +621,19 @@ const GreenSpinner = () => {
 	);
 };
 
-const ReplicateTokenModal = ({ onSave }) => {
-	const [token, setToken] = React.useState('');
+const TokenModal = ({ onSave }) => {
+	const [replicate, setReplicate] = React.useState('');
+	const [openai, setOpenai] = React.useState('');
 	const [error, setError] = React.useState('');
 
 	const handleSave = () => {
-		if (!token.trim()) {
-			setError('Token is required');
+		if (!replicate.trim() || !openai.trim()) {
+			setError('Both tokens are required');
 			return;
 		}
-		localStorage.setItem(REPLICATE_API_TOKEN, token.trim());
-		onSave(token.trim());
+		localStorage.setItem(REPLICATE_API_TOKEN, replicate.trim());
+		localStorage.setItem(OPENAI_API_KEY, openai.trim());
+		onSave({ replicate: replicate.trim(), openai: openai.trim() });
 	};
 
 	return (
@@ -640,17 +651,24 @@ const ReplicateTokenModal = ({ onSave }) => {
 						style={{ display: 'block', width: '100%' }}
 					></iframe>
 				</div>
-				<p className="mb-4 text-stone-500">
-					To use this app, you need to <a href="https://replicate.com/account/api-tokens?new-token-name=kontext-realtime" target="_blank" rel="noopener noreferrer" className="underline">create a Replicate API token</a>.
+				<p className="mb-2 text-stone-500">
+					To use this app, you need to <a href="https://replicate.com/account/api-tokens?new-token-name=kontext-realtime" target="_blank" rel="noopener noreferrer" className="underline">create a Replicate API token</a> and an <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline">OpenAI API key</a>.
 				</p>
 				<form onSubmit={e => { e.preventDefault(); handleSave(); }}>
 					<input
 						type="text"
-						className="w-full border border-stone-300 rounded px-3 py-2 mb-2"	
+						className="w-full border border-stone-300 rounded px-3 py-2 mb-2"
 						placeholder="Paste your Replicate API token here"
-						value={token}
-						onChange={e => { setToken(e.target.value); setError(''); }}
+						value={replicate}
+						onChange={e => { setReplicate(e.target.value); setError(''); }}
 						autoFocus
+					/>
+					<input
+						type="text"
+						className="w-full border border-stone-300 rounded px-3 py-2 mb-2"
+						placeholder="Paste your OpenAI API key here"
+						value={openai}
+						onChange={e => { setOpenai(e.target.value); setError(''); }}
 					/>
 					{error && <div className="text-red-600 text-sm mb-2">{error}</div>}
 					<button

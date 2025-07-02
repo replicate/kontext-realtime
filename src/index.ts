@@ -9,6 +9,11 @@ In the tools you have the ability to control a robot hand.
 `;
 
 app.post('/rtc-connect', async (c) => {
+	const authHeader = c.req.header('Authorization');
+	if (!authHeader || !authHeader.startsWith('Bearer ')) {
+		return c.json({ error: 'Missing OpenAI API key in Authorization header' }, 401);
+	}
+	const openaiKey = authHeader.replace('Bearer ', '').trim();
 	const body = await c.req.text();
 	const url = new URL('https://api.openai.com/v1/realtime');
 	url.searchParams.set('model', 'gpt-4o-realtime-preview-2024-12-17');
@@ -19,7 +24,7 @@ app.post('/rtc-connect', async (c) => {
 		method: 'POST',
 		body,
 		headers: {
-			Authorization: `Bearer ${c.env.OPENAI_API_KEY}`,
+			Authorization: `Bearer ${openaiKey}`,
 			'Content-Type': 'application/sdp',
 		},
 	});
@@ -112,7 +117,12 @@ app.post('/edit-image', async (c) => {
 });
 
 app.post('/enhance-image', async (c) => {
-	const replicate = new Replicate({ auth: c.env.REPLICATE_API_TOKEN });
+	const authHeader = c.req.header('Authorization');
+	if (!authHeader || !authHeader.startsWith('Bearer ')) {
+		return c.json({ error: 'Missing Replicate API token in Authorization header' }, 401);
+	}
+	const replicateToken = authHeader.replace('Bearer ', '').trim();
+	const replicate = new Replicate({ auth: replicateToken });
 	const model = 'topazlabs/image-upscale';
 	const { imageUrl } = await c.req.json();
 
