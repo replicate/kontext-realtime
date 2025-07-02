@@ -234,6 +234,19 @@ const App = () => {
 				return { success: true };
 			}
 		},
+		logout: {
+			description: 'Removes your Replicate API token from local storage',
+			examplePrompt: 'Log out',
+			parameters: {
+				type: 'object',
+				properties: {},
+			},
+			fn: () => {
+				logout();
+				window.location.reload();
+				return { success: true };
+			},
+		},
 	}), [lastImageUrlRef]);
 
 	const tools = React.useMemo(() => Object.entries(fns).map(([name, { fn, examplePrompt, hideFromCommands, ...tool }]) => ({
@@ -419,6 +432,13 @@ const App = () => {
 		if (!replicateToken) setShowTokenModal(true);
 		else setShowTokenModal(false);
 	}, [replicateToken]);
+
+	// Add logout function
+	const logout = () => {
+		localStorage.removeItem(REPLICATE_API_TOKEN);
+		setReplicateToken('');
+		setShowTokenModal(true);
+	};
 
 	return (
 		<>
@@ -619,21 +639,23 @@ const ReplicateTokenModal = ({ onSave }) => {
 					To use this app, you need a Replicate API token. 👉&nbsp;
 					<a href="https://replicate.com/account/api-tokens?new-token-name=kontext-realtime" target="_blank" rel="noopener noreferrer" className="underline">Create a token</a>&nbsp;👈
 				</p>
-				<input
-					type="text"
-					className="w-full border border-gray-300 rounded px-3 py-2 mb-2"
-					placeholder="Paste your Replicate API token here"
-					value={token}
-					onChange={e => { setToken(e.target.value); setError(''); }}
-					autoFocus
-				/>
-				{error && <div className="text-red-600 text-sm mb-2">{error}</div>}
-				<button
-					className="w-full bg-stone-900 text-white py-2 rounded mt-2"
-					onClick={handleSave}
-				>
-					Save Token
-				</button>
+				<form onSubmit={e => { e.preventDefault(); handleSave(); }}>
+					<input
+						type="text"
+						className="w-full border border-gray-300 rounded px-3 py-2 mb-2"
+						placeholder="Paste your Replicate API token here"
+						value={token}
+						onChange={e => { setToken(e.target.value); setError(''); }}
+						autoFocus
+					/>
+					{error && <div className="text-red-600 text-sm mb-2">{error}</div>}
+					<button
+						type="submit"
+						className="w-full bg-stone-900 text-white py-2 rounded mt-2"
+					>
+						Save Token
+					</button>
+				</form>
 			</div>
 		</div>
 	);
