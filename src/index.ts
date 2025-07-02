@@ -38,15 +38,20 @@ app.post('/rtc-connect', async (c) => {
 
 
 app.post('/generate-image', async (c) => {
-	const replicate = new Replicate({auth: c.env.REPLICATE_API_TOKEN})
-	const model = 'black-forest-labs/flux-schnell'  
-	const prompt = await c.req.text()
+	const authHeader = c.req.header('Authorization');
+	if (!authHeader || !authHeader.startsWith('Bearer ')) {
+		return c.json({ error: 'Missing Replicate API token in Authorization header' }, 401);
+	}
+	const replicateToken = authHeader.replace('Bearer ', '').trim();
+	const replicate = new Replicate({ auth: replicateToken });
+	const model = 'black-forest-labs/flux-schnell';
+	const prompt = await c.req.text();
 	const output = await replicate.run(model, {
 	  input: {
 		prompt,
 		image_format: 'webp',
 	  }
-	})
+	});
 	  
 	// Some image models return an array of output files, others just a single file.
 	let imageUrl;
@@ -72,7 +77,12 @@ app.post('/generate-image', async (c) => {
 });
 
 app.post('/edit-image', async (c) => {
-	const replicate = new Replicate({ auth: c.env.REPLICATE_API_TOKEN });
+	const authHeader = c.req.header('Authorization');
+	if (!authHeader || !authHeader.startsWith('Bearer ')) {
+		return c.json({ error: 'Missing Replicate API token in Authorization header' }, 401);
+	}
+	const replicateToken = authHeader.replace('Bearer ', '').trim();
+	const replicate = new Replicate({ auth: replicateToken });
 	const model = 'black-forest-labs/flux-kontext-pro';
 	const { prompt, imageUrl } = await c.req.json();
 

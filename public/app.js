@@ -1,3 +1,6 @@
+// Define the localStorage key at the top level so it is available everywhere
+const REPLICATE_API_TOKEN = 'replicate_api_token';
+
 const App = () => {
 	const visualizerRef = React.useRef(null);
 	const [images, setImages] = React.useState([]);
@@ -17,6 +20,9 @@ const App = () => {
 	const [highlightedFunctions, setHighlightedFunctions] = React.useState({});
 	const highlightTimeouts = React.useRef({});
 
+	const [replicateToken, setReplicateToken] = React.useState(() => localStorage.getItem(REPLICATE_API_TOKEN) || '');
+	const [showTokenModal, setShowTokenModal] = React.useState(!replicateToken);
+
 	React.useEffect(() => {
 		localStorage.setItem('isCommandsOpen', JSON.stringify(isCommandsOpen));
 	}, [isCommandsOpen]);
@@ -27,6 +33,18 @@ const App = () => {
 		setLastImageUrl(imageUrl);
 		setImages(prevImages => [imageUrl, ...prevImages]);
 		setIsWebcamOpen(false);
+	};
+
+	const fetchWithReplicateToken = (url, options = {}) => {
+		const token = localStorage.getItem(REPLICATE_API_TOKEN);
+		if (!token) throw new Error('Replicate API token not set');
+		return fetch(url, {
+			...options,
+			headers: {
+				...(options.headers || {}),
+				Authorization: `Bearer ${token}`,
+			},
+		});
 	};
 
 	const fns = React.useMemo(() => ({
@@ -79,7 +97,7 @@ const App = () => {
 				console.log('createImage', prompt);
 				setIsGenerating(true);
 				try {
-					const imageUrl = await fetch('/generate-image', {
+					const imageUrl = await fetchWithReplicateToken('/generate-image', {
 						method: 'POST',
 						body: prompt,
 					}).then((r) => r.text());
@@ -111,7 +129,7 @@ const App = () => {
 				console.log('editImage', prompt, lastImageUrlRef.current);
 				setIsGenerating(true);
 				try {
-					const imageUrl = await fetch('/edit-image', {
+					const imageUrl = await fetchWithReplicateToken('/edit-image', {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json',
@@ -143,7 +161,7 @@ const App = () => {
 				}
 				setIsGenerating(true);
 				try {
-					const imageUrl = await fetch('/enhance-image', {
+					const imageUrl = await fetchWithReplicateToken('/enhance-image', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({ imageUrl: lastImageUrlRef.current }),
@@ -216,7 +234,7 @@ const App = () => {
 				return { success: true };
 			}
 		},
-	}), []);
+	}), [lastImageUrlRef]);
 
 	const tools = React.useMemo(() => Object.entries(fns).map(([name, { fn, examplePrompt, hideFromCommands, ...tool }]) => ({
 		type: 'function',
@@ -224,7 +242,9 @@ const App = () => {
 		...tool
 	})), [fns]);
 
+	// Only start OpenAI connection and audio after Replicate token is set
 	React.useEffect(() => {
+		if (showTokenModal) return;
 		console.log('tools', tools);
 
 		const peerConnection = new RTCPeerConnection();
@@ -378,8 +398,7 @@ const App = () => {
 					});
 			});
 		});
-
-	}, [tools, fns]);
+	}, [tools, fns, showTokenModal]);
 	
 	const Audio = ({ stream }) => {
 		const ref = React.useRef(null);
@@ -395,9 +414,16 @@ const App = () => {
 		);
 	};
 
+	// Show modal if token is not set
+	React.useEffect(() => {
+		if (!replicateToken) setShowTokenModal(true);
+		else setShowTokenModal(false);
+	}, [replicateToken]);
+
 	return (
 		<>
-			<div className="max-w-6xl mx-auto px-4 py-12">
+			{showTokenModal && <ReplicateTokenModal onSave={token => { setReplicateToken(token); setShowTokenModal(false); }} />}
+			<div className={`max-w-6xl mx-auto px-4 py-12 ${showTokenModal ? 'pointer-events-none opacity-40 select-none' : ''}`}>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-12">
 					{/* Left Column */}
 					<div>
@@ -558,6 +584,58 @@ const GreenSpinner = () => {
 				/>
 			</svg>
 		</span>
+	);
+};
+
+const ReplicateTokenModal = ({ onSave }) => {
+	const [token, setToken] = React.useState('');
+	const [error, setError] = React.useState('');
+
+	const handleSave = () => {
+		if (!token.trim()) {
+			setError('Token is required');
+			return;
+		}
+		localStorage.setItem(REPLICATE_API_TOKEN, token.trim());
+		onSave(token.trim());
+	};
+
+	return (
+		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+			<div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-2xl relative">
+				<div className="w-full mb-6">
+					<iframe
+						width="100%"
+						height="360"
+						src="https://www.youtube.com/embed/72mD_vkG9FU"
+						title="YouTube video player"
+						frameBorder="0"
+						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+						allowFullScreen
+						style={{ display: 'block', width: '100%' }}
+					></iframe>
+				</div>
+				<p className="mb-4 text-gray-700">
+					To use this app, you need a Replicate API token. 👉&nbsp;
+					<a href="https://replicate.com/account/api-tokens?new-token-name=kontext-realtime" target="_blank" rel="noopener noreferrer" className="underline">Create a token</a>&nbsp;👈
+				</p>
+				<input
+					type="text"
+					className="w-full border border-gray-300 rounded px-3 py-2 mb-2"
+					placeholder="Paste your Replicate API token here"
+					value={token}
+					onChange={e => { setToken(e.target.value); setError(''); }}
+					autoFocus
+				/>
+				{error && <div className="text-red-600 text-sm mb-2">{error}</div>}
+				<button
+					className="w-full bg-stone-900 text-white py-2 rounded mt-2"
+					onClick={handleSave}
+				>
+					Save Token
+				</button>
+			</div>
+		</div>
 	);
 };
 
