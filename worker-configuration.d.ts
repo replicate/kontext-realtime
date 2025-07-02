@@ -2,8 +2,6 @@
 // Runtime types generated with workerd@1.20250321.0 2024-12-05 nodejs_compat
 declare namespace Cloudflare {
 	interface Env {
-		OPENAI_API_KEY: string;
-		REPLICATE_API_TOKEN: string;
 	}
 }
 interface Env extends Cloudflare.Env {}

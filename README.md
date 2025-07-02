@@ -65,6 +65,12 @@ npx wrangler secret put OPENAI_API_KEY
 npx wrangler secret put REPLICATE_API_TOKEN
 ```
 
+## Replicate API Token
+
+When you first load the app, you will be prompted to enter your Replicate API token in a modal dialog. The token is stored in your browser's localStorage and used for all Replicate API requests. You can get a token from [Replicate's API tokens page](https://replicate.com/account/api-tokens?new-token-name=kontext-realtime).
+
+You no longer need to set the `REPLICATE_API_TOKEN` environment variable or use `wrangler secret put` for this project.
+
 ```bash
 npm run deploy
 ```

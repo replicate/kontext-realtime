@@ -1,3 +1,7 @@
+// Define the localStorage key at the top level so it is available everywhere
+const REPLICATE_API_TOKEN = 'replicate_api_token';
+const OPENAI_API_KEY = 'openai_api_key';
+
 const App = () => {
 	const visualizerRef = React.useRef(null);
 	const [images, setImages] = React.useState([]);
@@ -17,6 +21,10 @@ const App = () => {
 	const [highlightedFunctions, setHighlightedFunctions] = React.useState({});
 	const highlightTimeouts = React.useRef({});
 
+	const [replicateToken, setReplicateToken] = React.useState(() => localStorage.getItem(REPLICATE_API_TOKEN) || '');
+	const [openaiKey, setOpenaiKey] = React.useState(() => localStorage.getItem(OPENAI_API_KEY) || '');
+	const [showTokenModal, setShowTokenModal] = React.useState(!replicateToken || !openaiKey);
+
 	React.useEffect(() => {
 		localStorage.setItem('isCommandsOpen', JSON.stringify(isCommandsOpen));
 	}, [isCommandsOpen]);
@@ -27,6 +35,18 @@ const App = () => {
 		setLastImageUrl(imageUrl);
 		setImages(prevImages => [imageUrl, ...prevImages]);
 		setIsWebcamOpen(false);
+	};
+
+	const fetchWithReplicateToken = (url, options = {}) => {
+		const token = localStorage.getItem(REPLICATE_API_TOKEN);
+		if (!token) throw new Error('Replicate API token not set');
+		return fetch(url, {
+			...options,
+			headers: {
+				...(options.headers || {}),
+				Authorization: `Bearer ${token}`,
+			},
+		});
 	};
 
 	const fns = React.useMemo(() => ({
@@ -79,7 +99,7 @@ const App = () => {
 				console.log('createImage', prompt);
 				setIsGenerating(true);
 				try {
-					const imageUrl = await fetch('/generate-image', {
+					const imageUrl = await fetchWithReplicateToken('/generate-image', {
 						method: 'POST',
 						body: prompt,
 					}).then((r) => r.text());
@@ -111,7 +131,7 @@ const App = () => {
 				console.log('editImage', prompt, lastImageUrlRef.current);
 				setIsGenerating(true);
 				try {
-					const imageUrl = await fetch('/edit-image', {
+					const imageUrl = await fetchWithReplicateToken('/edit-image', {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json',
@@ -143,7 +163,7 @@ const App = () => {
 				}
 				setIsGenerating(true);
 				try {
-					const imageUrl = await fetch('/enhance-image', {
+					const imageUrl = await fetchWithReplicateToken('/enhance-image', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({ imageUrl: lastImageUrlRef.current }),
@@ -216,7 +236,20 @@ const App = () => {
 				return { success: true };
 			}
 		},
-	}), []);
+		logout: {
+			description: 'Removes your Replicate API token from local storage',
+			examplePrompt: 'Log out',
+			parameters: {
+				type: 'object',
+				properties: {},
+			},
+			fn: () => {
+				logout();
+				window.location.reload();
+				return { success: true };
+			},
+		},
+	}), [lastImageUrlRef]);
 
 	const tools = React.useMemo(() => Object.entries(fns).map(([name, { fn, examplePrompt, hideFromCommands, ...tool }]) => ({
 		type: 'function',
@@ -224,7 +257,9 @@ const App = () => {
 		...tool
 	})), [fns]);
 
+	// Only start OpenAI connection and audio after Replicate token is set
 	React.useEffect(() => {
+		if (showTokenModal) return;
 		console.log('tools', tools);
 
 		const peerConnection = new RTCPeerConnection();
@@ -367,6 +402,7 @@ const App = () => {
 					body: offer.sdp,
 					headers: {
 						'Content-Type': 'application/sdp',
+						Authorization: `Bearer ${openaiKey}`,
 					},
 				})
 					.then((r) => r.text())
@@ -378,8 +414,7 @@ const App = () => {
 					});
 			});
 		});
-
-	}, [tools, fns]);
+	}, [tools, fns, showTokenModal, openaiKey]);
 	
 	const Audio = ({ stream }) => {
 		const ref = React.useRef(null);
@@ -395,9 +430,34 @@ const App = () => {
 		);
 	};
 
+	// Show modal if token is not set
+	React.useEffect(() => {
+		if (!replicateToken || !openaiKey) setShowTokenModal(true);
+		else setShowTokenModal(false);
+	}, [replicateToken, openaiKey]);
+
+	// Add logout function
+	const logout = () => {
+		localStorage.removeItem(REPLICATE_API_TOKEN);
+		localStorage.removeItem(OPENAI_API_KEY);
+		setReplicateToken('');
+		setOpenaiKey('');
+		setShowTokenModal(true);
+	};
+
 	return (
 		<>
-			<div className="max-w-6xl mx-auto px-4 py-12">
+			{showTokenModal && (
+				<>
+					<div className="fixed inset-0 z-40 bg-white bg-opacity-40 backdrop-blur" />
+					<TokenModal onSave={({replicate, openai}) => {
+						setReplicateToken(replicate);
+						setOpenaiKey(openai);
+						setShowTokenModal(false);
+					}} />
+				</>
+			)}
+			<div className={`max-w-6xl mx-auto px-4 py-12 transition-all duration-300 ${showTokenModal ? 'pointer-events-none select-none' : ''}`}>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-12">
 					{/* Left Column */}
 					<div>
@@ -558,6 +618,68 @@ const GreenSpinner = () => {
 				/>
 			</svg>
 		</span>
+	);
+};
+
+const TokenModal = ({ onSave }) => {
+	const [replicate, setReplicate] = React.useState('');
+	const [openai, setOpenai] = React.useState('');
+	const [error, setError] = React.useState('');
+
+	const handleSave = () => {
+		if (!replicate.trim() || !openai.trim()) {
+			setError('Both tokens are required');
+			return;
+		}
+		localStorage.setItem(REPLICATE_API_TOKEN, replicate.trim());
+		localStorage.setItem(OPENAI_API_KEY, openai.trim());
+		onSave({ replicate: replicate.trim(), openai: openai.trim() });
+	};
+
+	return (
+		<div className="fixed inset-0 z-50 flex items-center justify-center">
+			<div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-2xl relative">
+				<div className="w-full mb-10">
+					<iframe
+						width="100%"
+						height="360"
+						src="https://www.youtube.com/embed/72mD_vkG9FU"
+						title="YouTube video player"
+						frameBorder="0"
+						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+						allowFullScreen
+						style={{ display: 'block', width: '100%' }}
+					></iframe>
+				</div>
+				<p className="mb-2 text-stone-500">
+					To use this app, you need to <a href="https://replicate.com/account/api-tokens?new-token-name=kontext-realtime" target="_blank" rel="noopener noreferrer" className="underline">create a Replicate API token</a> and an <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline">OpenAI API key</a>.
+				</p>
+				<form onSubmit={e => { e.preventDefault(); handleSave(); }}>
+					<input
+						type="text"
+						className="w-full border border-stone-300 rounded px-3 py-2 mb-2"
+						placeholder="Paste your Replicate API token here"
+						value={replicate}
+						onChange={e => { setReplicate(e.target.value); setError(''); }}
+						autoFocus
+					/>
+					<input
+						type="text"
+						className="w-full border border-stone-300 rounded px-3 py-2 mb-2"
+						placeholder="Paste your OpenAI API key here"
+						value={openai}
+						onChange={e => { setOpenai(e.target.value); setError(''); }}
+					/>
+					{error && <div className="text-red-600 text-sm mb-2">{error}</div>}
+					<button
+						type="submit"
+						className="w-full bg-stone-900 text-white py-2 rounded mt-2"
+					>
+						Get Started
+					</button>
+				</form>
+			</div>
+		</div>
 	);
 };
 
