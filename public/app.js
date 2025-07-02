@@ -442,8 +442,13 @@ const App = () => {
 
 	return (
 		<>
-			{showTokenModal && <ReplicateTokenModal onSave={token => { setReplicateToken(token); setShowTokenModal(false); }} />}
-			<div className={`max-w-6xl mx-auto px-4 py-12 ${showTokenModal ? 'pointer-events-none opacity-40 select-none' : ''}`}>
+			{showTokenModal && (
+				<>
+					<div className="fixed inset-0 z-40 bg-white bg-opacity-40 backdrop-blur" />
+					<ReplicateTokenModal onSave={token => { setReplicateToken(token); setShowTokenModal(false); }} />
+				</>
+			)}
+			<div className={`max-w-6xl mx-auto px-4 py-12 transition-all duration-300 ${showTokenModal ? 'pointer-events-none select-none' : ''}`}>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-12">
 					{/* Left Column */}
 					<div>
@@ -621,9 +626,9 @@ const ReplicateTokenModal = ({ onSave }) => {
 	};
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-			<div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-2xl relative">
-				<div className="w-full mb-6">
+		<div className="fixed inset-0 z-50 flex items-center justify-center">
+			<div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-2xl relative">
+				<div className="w-full mb-10">
 					<iframe
 						width="100%"
 						height="360"
@@ -635,14 +640,13 @@ const ReplicateTokenModal = ({ onSave }) => {
 						style={{ display: 'block', width: '100%' }}
 					></iframe>
 				</div>
-				<p className="mb-4 text-gray-700">
-					To use this app, you need a Replicate API token. 👉&nbsp;
-					<a href="https://replicate.com/account/api-tokens?new-token-name=kontext-realtime" target="_blank" rel="noopener noreferrer" className="underline">Create a token</a>&nbsp;👈
+				<p className="mb-4 text-stone-500">
+					To use this app, you need to <a href="https://replicate.com/account/api-tokens?new-token-name=kontext-realtime" target="_blank" rel="noopener noreferrer" className="underline">create a Replicate API token</a>.
 				</p>
 				<form onSubmit={e => { e.preventDefault(); handleSave(); }}>
 					<input
 						type="text"
-						className="w-full border border-gray-300 rounded px-3 py-2 mb-2"
+						className="w-full border border-stone-300 rounded px-3 py-2 mb-2"	
 						placeholder="Paste your Replicate API token here"
 						value={token}
 						onChange={e => { setToken(e.target.value); setError(''); }}
@@ -653,7 +657,7 @@ const ReplicateTokenModal = ({ onSave }) => {
 						type="submit"
 						className="w-full bg-stone-900 text-white py-2 rounded mt-2"
 					>
-						Save Token
+						Get Started
 					</button>
 				</form>
 			</div>
