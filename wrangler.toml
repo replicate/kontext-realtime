@@ -10,3 +10,6 @@ directory = "./public"
 
 [dev]
 live_reload = true
+
+[observability.logs]
+enabled = true
