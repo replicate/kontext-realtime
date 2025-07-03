@@ -6,7 +6,6 @@ const app = new Hono<{ Bindings: Env }>();
 const DEFAULT_INSTRUCTIONS = `You are helpful and have some tools installed.
 
 In the tools you have the ability to control a robot hand.
-`;
 
 app.post('/rtc-connect', async (c) => {
 	const authHeader = c.req.header('Authorization');
@@ -58,23 +57,10 @@ app.post('/generate-image', async (c) => {
 	  }
 	});
 	  
-	// Some image models return an array of output files, others just a single file.
-	let imageUrl;
-	if (Array.isArray(output)) {
-		if (typeof output[0] === 'string') {
-			imageUrl = output[0];
-		} else {
-			imageUrl = String(output[0]);
-		}
-	} else if (typeof output === 'string') {
-		imageUrl = output;
-	} else {
-		imageUrl = String(output);
-	}
+	// Some models return an array of output files, others just a single file.
+	const outputImageUrl = Array.isArray(output) ? output[0] : output
    
-	console.log({imageUrl})
-
-	return c.body(imageUrl, {
+	return c.body(outputImageUrl, {
 		headers: {
 			'Content-Type': 'image/webp',
 		},
@@ -88,11 +74,10 @@ app.post('/edit-image', async (c) => {
 	}
 	const replicateToken = authHeader.replace('Bearer ', '').trim();
 	const replicate = new Replicate({ auth: replicateToken });
-	const model = 'black-forest-labs/flux-kontext-pro';
-	const { prompt, imageUrl } = await c.req.json();
+	const { prompt, imageUrl, model } = await c.req.json();
 
-	if (!prompt || !imageUrl) {
-		return c.json({ error: 'prompt and imageUrl are required' }, 400);
+	if (!prompt || !imageUrl || !model) {
+		return c.json({ error: 'prompt, imageUrl, and model are required' }, 400);
 	}
 
 	const input = {
@@ -102,12 +87,10 @@ app.post('/edit-image', async (c) => {
 		safety_tolerance: 2,
 	}
 
-	console.log({input})
-
 	const output = (await replicate.run(model, { input })) as unknown as string;
 
-	// Some image models return an array of output files, others just a single file.
-	const outputImageUrl = Array.isArray(output) ? output[0].url() : output.url()
+	// Some models return an array of output files, others just a single file.
+	const outputImageUrl = Array.isArray(output) ? output[0] : output
 
 	return c.body(outputImageUrl, {
 		headers: {
@@ -134,16 +117,14 @@ app.post('/enhance-image', async (c) => {
 		image: imageUrl
 	};
 
-	console.log({ input });
-
 	const output = (await replicate.run(model, { input })) as unknown;
 
-	// Some image models return an array of output files, others just a single file.
-	const outputImageUrl = Array.isArray(output) ? output[0].url() : output.url()
+	// Some models return an array of output files, others just a single file.
+	const outputImageUrl = Array.isArray(output) ? output[0] : output
 
 	return c.body(outputImageUrl, {
 		headers: {
-			'Content-Type': 'text/plain',
+			'Content-Type': 'text/webp',
 		},
 	});
 });

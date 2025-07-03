@@ -136,7 +136,7 @@ const App = () => {
 						headers: {
 							'Content-Type': 'application/json',
 						},
-						body: JSON.stringify({ prompt, imageUrl: lastImageUrlRef.current }),
+						body: JSON.stringify({ prompt, imageUrl: lastImageUrlRef.current, model: 'black-forest-labs/flux-kontext-pro' }),
 					}).then((r) => r.text());
 
 					console.log('new imageUrl', imageUrl);

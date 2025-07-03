@@ -17,6 +17,6 @@
   },
   "dependencies": {
     "hono": "^4.6.13",
-    "replicate": "^1.0.1"
+    "replicate": "^2.0.0-alpha.16"
   }
 }
