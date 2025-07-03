@@ -3,9 +3,7 @@ import Replicate from 'replicate';
 
 const app = new Hono<{ Bindings: Env }>();
 
-const DEFAULT_INSTRUCTIONS = `You are helpful and have some tools installed.
-
-In the tools you have the ability to control a robot hand.
+const DEFAULT_INSTRUCTIONS = `You are helpful and have some tools installed.`;
 
 app.post('/rtc-connect', async (c) => {
 	const authHeader = c.req.header('Authorization');
