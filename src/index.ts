@@ -5,6 +5,43 @@ const app = new Hono<{ Bindings: Env }>();
 
 const DEFAULT_INSTRUCTIONS = `You are helpful and have some tools installed.`;
 
+// Serve the HTML page for the root path
+app.get('/', (c) => {
+	return c.html(`<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>OpenAI Realtime API with Cloudflare and Replicate</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+	<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+	<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+	<script src="/app.js" type="text/babel"></script>
+	<style>
+		/* Set default text color */
+		:root {
+			--text-color: #111827; /* text-gray-900 */
+			--background-color: #f9fafb; /* gray-50 */
+		}
+		body {
+			color: var(--text-color);
+			background-color: var(--background-color);
+		}
+		blockquote {
+			border-color: color-mix(in srgb, var(--text-color) 10%, transparent);
+		}
+		.visualizer-canvas {
+			border-color: color-mix(in srgb, var(--text-color) 20%, transparent);
+		}
+	</style>
+</head>
+<body class="min-h-screen font-sans text-lg">
+	<div id="root"></div>
+</body>
+</html>`);
+});
+
 app.post('/rtc-connect', async (c) => {
 	const authHeader = c.req.header('Authorization');
 	if (!authHeader || !authHeader.startsWith('Bearer ')) {
