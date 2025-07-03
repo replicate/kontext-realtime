@@ -510,7 +510,7 @@ const App = () => {
 						<footer className="py-8 opacity-70 mt-12">
 							<p>
 								This is a realtime demo of voice-powered function calling
-								using <a href="https://developers.cloudflare.com" className="underline">Cloudflare Workers</a>, <a href="https://replicate.com" className="underline">Replicate</a>, and the <a href="https://platform.openai.com/docs/api-reference/realtime" className="underline">OpenAI Realtime API</a>. It generates images using <a href="https://replicate.com/black-forest-labs/flux-schnell" className="underline">Flux Schnell</a> and edits them using <a href="https://replicate.com/black-forest-labs/flux-kontext-pro" className="underline">Flux Kontext Pro</a>.
+								using <a href="https://developers.cloudflare.com" className="underline">Cloudflare Workers</a>, <a href="https://replicate.com?utm_campaign=kontext-realtime&utm_source=github&utm_medium=referral" className="underline">Replicate</a>, and the <a href="https://platform.openai.com/docs/api-reference/realtime" className="underline">OpenAI Realtime API</a>. It generates images using <a href="https://replicate.com/black-forest-labs/flux-schnell?utm_campaign=kontext-realtime&utm_source=github&utm_medium=referral" className="underline">Flux Schnell</a> and edits them using <a href="https://replicate.com/black-forest-labs/flux-kontext-pro?utm_campaign=kontext-realtime&utm_source=github&utm_medium=referral" className="underline">Flux Kontext Pro</a>.
 							</p>
 							<p className="mt-4">
 								Check out the <a href="https://github.com/zeke/kontext-realtime/" className="underline">code</a>.
