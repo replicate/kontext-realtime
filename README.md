@@ -9,18 +9,18 @@ Create and edit images using your voice.
 🍿 [Watch the demo video](https://www.youtube.com/watch?v=72mD_vkG9FU)
 
 This is a realtime demo of voice-powered function calling
-using [Cloudflare Workers](https://developers.cloudflare.com), [Replicate](https://replicate.com?utm_campaign=kontext-realtime&utm_source=github&utm_medium=referral), and the [OpenAI Realtime API](https://platform.openai.com/docs/api-reference/realtime).
+using [Cloudflare Workers](https://developers.cloudflare.com), [Replicate](https://replicate.com?utm_campaign=kontext-realtime&utm_source=project&utm_medium=referral), and the [OpenAI Realtime API](https://platform.openai.com/docs/api-reference/realtime).
 
-It generates images using [Flux Schnell](https://replicate.com/black-forest-labs/flux-schnell?utm_campaign=kontext-realtime&utm_source=github&utm_medium=referral) and edits them using [Flux Kontext Pro](https://replicate.com/black-forest-labs/flux-kontext-pro?utm_campaign=kontext-realtime&utm_source=github&utm_medium=referral).
+It generates images using [Flux Schnell](https://replicate.com/black-forest-labs/flux-schnell?utm_campaign=kontext-realtime&utm_source=project&utm_medium=referral) and edits them using [Flux Kontext Pro](https://replicate.com/black-forest-labs/flux-kontext-pro?utm_campaign=kontext-realtime&utm_source=project&utm_medium=referral).
 
-Created from this guide and template: https://replicate.com/docs/guides/openai-realtime?utm_campaign=kontext-realtime&utm_source=github&utm_medium=referral
+Created from this guide and template: https://replicate.com/docs/guides/openai-realtime?utm_campaign=kontext-realtime&utm_source=project&utm_medium=referral
 
 ## Prerequisites
 
 Here's what you'll need to build this project:
 
 - An [OpenAI account](https://platform.openai.com/signup). No special plan is required to use the Realtime API Beta.
-- A [Replicate account](https://replicate.com/?utm_campaign=kontext-realtime&utm_source=github&utm_medium=referral).
+- A [Replicate account](https://replicate.com/?utm_campaign=kontext-realtime&utm_source=project&utm_medium=referral).
 - [Node.js 20](https://nodejs.org/en/download/prebuilt-installer) or later.
 - [Git](https://chatgpt.com/share/673d65dc-8e50-8003-8ce2-4bc7053d0e3a) for cloning the project from 
 GitHub.
@@ -28,7 +28,7 @@ GitHub.
 
 ## Development
 
-- Create a Replicate API token at [replicate.com/account/api-tokens](https://replicate.com/account/api-tokens?utm_campaign=kontext-realtime&utm_source=github&utm_medium=referral)
+- Create a Replicate API token at [replicate.com/account/api-tokens](https://replicate.com/account/api-tokens?utm_campaign=kontext-realtime&utm_source=project&utm_medium=referral)
 - Create an OpenAI API key at [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
 
 Copy [.dev.vars.example](./.dev.vars.example) to `.dev.vars`:
@@ -67,7 +67,7 @@ npx wrangler secret put REPLICATE_API_TOKEN
 
 ## Replicate API Token
 
-When you first load the app, you will be prompted to enter your Replicate API token in a modal dialog. The token is stored in your browser's localStorage and used for all Replicate API requests. You can get a token from [Replicate's API tokens page](https://replicate.com/account/api-tokens?new-token-name=kontext-realtime&utm_campaign=kontext-realtime&utm_source=github&utm_medium=referral).
+When you first load the app, you will be prompted to enter your Replicate API token in a modal dialog. The token is stored in your browser's localStorage and used for all Replicate API requests. You can get a token from [Replicate's API tokens page](https://replicate.com/account/api-tokens?new-token-name=kontext-realtime&utm_campaign=kontext-realtime&utm_source=project&utm_medium=referral).
 
 You no longer need to set the `REPLICATE_API_TOKEN` environment variable or use `wrangler secret put` for this project.
 
